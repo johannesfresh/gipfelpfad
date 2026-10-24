@@ -40,21 +40,14 @@
       hint: 'Bis zu drei.',
       options: [['huetten', 'Hüttenplanung kostenlos'], ['community', 'Die App wird mit jeder Tour der Community besser'],
         ['schwierigkeit', 'Ehrliche Schwierigkeitsangaben'],
-        ['preis', 'Premium für 40 € im Jahr'], ['offen', 'Keine Werbung, kein Datenverkauf'],
+        ['kostenlos', 'Alles kostenlos, ohne Abo'], ['offen', 'Keine Werbung, kein Datenverkauf'],
         ['filter', 'Filter wie „Hütte am Weg“ oder „keine ausgesetzten Stellen“'], ['freunde', 'Touren der Freunde auf der Karte'],
         ['alpen', 'Fokus auf den Alpenraum'], ['nichts', 'Eigentlich nichts']] },
-    { field: 'premium_intent', type: 'single', title: 'Premium soll 40 € im Jahr kosten (oder 5,99 € im Monat). Würdest du es abschließen?',
-      hint: 'Premium: Offline-Karten für beliebig viele Gebiete, Hüttenkontakte direkt aus der App, unbegrenzt gespeicherte Touren, Aufzeichnung bei gesperrtem Display, Gruppen-Touren.',
-      options: [['ja', 'Ja, würde ich abschließen'], ['test', 'Ich würde nach der Testphase entscheiden'],
-        ['basis', 'Nein, mir reicht die kostenlose Version'], ['teuer', 'Nein, das ist mir zu teuer']] },
-    { field: 'max_price', type: 'single', title: 'Was wäre dir so ein Premium-Abo im Jahr höchstens wert?',
-      options: [['0', 'Nichts'], ['1-20', 'Bis 20 €'], ['20-30', '20 bis 30 €'], ['30-40', '30 bis 40 €'],
-        ['40-60', '40 bis 60 €'], ['60+', 'Mehr als 60 €']] },
     { field: 'switch_likelihood', type: 'scale',
       title: (a) => usesKomoot(a)
         ? 'Wie wahrscheinlich ist es, dass du von komoot zu GipfelPfad wechselst?'
         : 'Wie wahrscheinlich ist es, dass du GipfelPfad für deine Touren nutzt?',
-      hint: 'Stell dir vor, GipfelPfad startet im Frühjahr 2027 mit allem, was du auf dieser Seite gesehen hast.',
+      hint: 'Stell dir vor, GipfelPfad gibt es mit allem, was du auf dieser Seite gesehen hast, komplett kostenlos.',
       options: [[5, 'Sehr wahrscheinlich'], [4, 'Eher wahrscheinlich'], [3, 'Unentschieden'],
         [2, 'Eher unwahrscheinlich'], [1, 'Sehr unwahrscheinlich']] },
     { field: 'final', type: 'final', title: 'Fast geschafft. Noch drei freiwillige Angaben.' },
@@ -62,7 +55,7 @@
 
   const AGE = [['', 'Keine Angabe'], ['u25', 'Unter 25'], ['25-39', '25 bis 39'], ['40-59', '40 bis 59'], ['60+', '60 oder älter']];
   const COUNTRY = [['', 'Keine Angabe'], ['de', 'Deutschland'], ['at', 'Österreich'], ['ch', 'Schweiz'], ['it', 'Italien'], ['andere', 'Anderes Land']];
-  const REASON_LABEL = Object.fromEntries(STEPS[5].options);
+  const REASON_LABEL = Object.fromEntries(STEPS.find((s) => s.field === 'reasons').options);
 
   let answers = {};
   let pos = 0;
@@ -138,7 +131,7 @@
     text.value = answers.pain_point || '';
     const trap = el('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', class: 'hp', 'aria-hidden': 'true' });
     const consent = el('p', { class: 'consent' }, [
-      'Anonym: Wir speichern keine Namen, E-Mail-Adressen oder IP-Adressen in der Umfrage. Mit dem Absenden stimmst du zu, dass deine Antworten für unser Studienprojekt ausgewertet werden. ',
+      'Anonym: Wir speichern keine Namen, E-Mail-Adressen oder IP-Adressen in der Umfrage. Mit dem Absenden stimmst du zu, dass wir deine Antworten für unser Projekt auswerten. ',
       el('a', { href: 'rechtliches.html#datenschutz', text: 'Datenschutz' }), '.',
     ]);
     return el('div', { class: 'final-fields' }, [text, el('div', { class: 'field-row' }, [
@@ -195,7 +188,6 @@
       hikes_per_year: a.hikes_per_year, hut_tours: a.hut_tours, apps: a.apps,
       komoot_usage: usesKomoot(a) ? a.komoot_usage : null,
       switch_likelihood: a.switch_likelihood, reasons: a.reasons || [], barriers: a.barriers || [],
-      premium_intent: a.premium_intent, max_price: a.max_price,
       pain_point: a.pain_point ? a.pain_point.slice(0, MAX_TEXT) : null,
       age_group: a.age_group || null, country: a.country || null, src: sourceParam(),
     };
@@ -305,7 +297,7 @@
     box.replaceChildren(
       el('div', { class: 'stats' }, [
         komootStat,
-        statBlock(pct(Number(s.premium_yes) + Number(s.premium_test), n) + ' %', 'würden Premium kaufen oder testen', `sofort kaufen: ${pct(s.premium_yes, n)} %`),
+        statBlock(pct(s.all_likely, n) + ' %', 'aller Befragten würden GipfelPfad (eher) nutzen', `davon „sehr wahrscheinlich“: ${pct(s.all_sure, n)} %`),
         statBlock(String(n), 'Antworten bisher', `davon ${k} mit komoot`),
       ]),
       reasons.length ? el('div', { class: 'top-reasons' }, [el('p', { text: 'Was am meisten überzeugt' }), el('ol', {}, reasons)]) : null,

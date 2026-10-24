@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14492d">
 <title>GipfelPfad: Würdest du wechseln?</title>
-<meta name="description" content="GipfelPfad ist eine Wander-App für den Alpenraum, die gerade entsteht: Hüttenplanung kostenlos, ehrliche Schwierigkeit, Premium für 40 € im Jahr. Hilf uns mit einer anonymen 2-Minuten-Umfrage.">
+<meta name="description" content="GipfelPfad ist eine kostenlose Wander-App für den Alpenraum: Hüttenplanung, Offline-Karten, Topo- und Satellitenkarten ohne Abo und ohne Werbung. Hilf uns mit einer anonymen 2-Minuten-Umfrage.">
 <link rel="icon" type="image/svg+xml" href="img/icon.svg">
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="preconnect" href="https://fonts.bunny.net">
@@ -106,9 +106,10 @@ p{text-wrap:pretty}
 .proto-head h3{font-size:clamp(24px,2.8vw,34px);font-weight:700;color:var(--green-ink);letter-spacing:-.03em}
 .proto-head span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .layer-stack{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.layer{position:relative;overflow:hidden;border-radius:14px;aspect-ratio:4/5;background:var(--green-ink);box-shadow:0 18px 40px rgba(13,49,32,.14)}
-.layer img{width:100%;height:100%;object-fit:cover;object-position:center 62%;transition:transform 1s var(--ease)}
-.layer:hover img{transform:scale(1.05)}
+.layer{position:relative;overflow:hidden;border-radius:14px;aspect-ratio:4/5;background:var(--paper-2);box-shadow:0 18px 40px rgba(13,49,32,.14)}
+/* leicht überskaliert: verhindert, dass durch Rundung am Rand ein Hintergrundstreifen durchscheint */
+.layer img{width:100%;height:100%;object-fit:cover;object-position:center 62%;transform:scale(1.03);transition:transform 1s var(--ease)}
+.layer:hover img{transform:scale(1.08)}
 .layer figcaption{position:absolute;left:13px;bottom:13px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#fff;
   background:rgba(13,49,32,.72);padding:6px 11px;border-radius:99px;backdrop-filter:blur(4px)}
 @media (max-width:740px){.layer-stack{grid-template-columns:1fr;gap:12px}.layer{aspect-ratio:16/10}}
@@ -129,6 +130,50 @@ p{text-wrap:pretty}
 .idea p{color:var(--muted);font-size:15.5px}
 .idea.wide{grid-column:span 12;display:grid;grid-template-columns:5fr 7fr;gap:clamp(24px,4vw,56px);align-items:center;margin-top:30px;padding-top:30px}
 @media (max-width:860px){.idea,.idea.wide{grid-column:span 12}.idea.wide{grid-template-columns:1fr}}
+
+/* kostenlos: Gipfelmarke „0 €“ + Wanderwegweiser */
+.free{display:grid;grid-template-columns:5fr 7fr;gap:clamp(24px,4vw,56px);align-items:center}
+.zero{position:relative;overflow:hidden;isolation:isolate;background:var(--green-deep);color:#eef3ee;border-radius:20px;
+  padding:clamp(28px,3vw,40px) clamp(26px,3vw,40px) clamp(96px,10vw,120px);box-shadow:0 26px 60px rgba(13,49,32,.26);transform:rotate(-1.2deg)}
+.zero-topo{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.zero-topo path{fill:none;stroke:#cfe9d8;stroke-opacity:.14;stroke-width:1.3}
+.zero-ridge{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(70px,8vw,96px);z-index:-1}
+.zero-ridge path{fill:var(--green-ink)}
+.zero-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--moss);display:flex;align-items:center;gap:10px}
+.zero-label::before{content:"";width:9px;height:9px;transform:rotate(45deg);background:var(--amber)}
+.zero-num{display:block;font-family:var(--font-display);font-weight:700;font-size:clamp(96px,12vw,168px);letter-spacing:-.06em;line-height:.82;color:#cfe9d8;margin:14px 0 26px}
+.zero ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.zero li{display:flex;align-items:center;gap:10px;font-size:16px}
+.zero li::before{content:"";width:16px;height:16px;flex:none;border-radius:50%;background:var(--moss) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%230d3120' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat}
+.zero-hand{position:absolute;right:clamp(20px,3vw,34px);top:clamp(26px,3vw,38px);transform:rotate(8deg);font-size:clamp(24px,2.6vw,32px)}
+
+/* Wegweiser: Pfosten + pfeilförmige Schilder mit rot-weiß-roter Markierung */
+.sign{list-style:none;position:relative;display:flex;flex-direction:column;gap:14px;padding:26px 0 40px 26px}
+.sign::before{content:"";position:absolute;left:0;top:0;bottom:0;width:14px;border-radius:7px 7px 3px 3px;
+  background:linear-gradient(90deg,#6d7772,#c3cac5 45%,#7d8782);box-shadow:4px 0 10px rgba(13,49,32,.18)}
+.sign::after{content:"";position:absolute;left:-6px;bottom:0;width:26px;height:10px;border-radius:50%;background:rgba(13,49,32,.18);filter:blur(3px)}
+.plate{--sign-yellow:#f2c94c;position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:var(--sign-yellow);color:var(--green-ink);padding:14px 52px 14px 46px;
+  clip-path:polygon(0 0,calc(100% - 30px) 0,100% 50%,calc(100% - 30px) 100%,0 100%);
+  box-shadow:inset 0 -3px 0 rgba(13,49,32,.12);transition:transform .45s var(--ease),filter .3s}
+.plate:nth-child(2){width:94%}
+.plate:nth-child(3){width:97%}
+.plate:nth-child(4){width:88%}
+.plate::before{content:"";position:absolute;left:14px;top:50%;width:18px;height:26px;transform:translateY(-50%);border-radius:2px;
+  background:linear-gradient(#c8372d 0 33%,#fff 33% 67%,#c8372d 67%)}
+.plate:hover{transform:translateX(8px);filter:brightness(1.04)}
+.plate-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.plate-txt b{font-family:var(--font-display);font-weight:700;font-size:clamp(17px,1.7vw,21px);letter-spacing:-.02em;line-height:1.15}
+.plate-txt small{font-size:12.5px;color:rgba(13,49,32,.66);display:inline-flex;align-items:center;gap:6px}
+.plate-txt small::before{content:"";width:12px;height:12px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d3120' stroke-opacity='.7' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/contain no-repeat}
+.plate-tip{flex:none;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--green-deep);color:#fff;padding:7px 12px;border-radius:99px}
+.sign .plate.reveal{transform:translateX(-36px)}
+.sign .plate.reveal.in{transform:none}
+.sign .plate.reveal.in:hover{transform:translateX(8px);transition-delay:0s}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+@media (max-width:860px){.free{grid-template-columns:1fr}.zero{transform:none}}
+@media (max-width:560px){.plate,.plate:nth-child(n){width:100%;padding:12px 44px 12px 42px}.plate-tip{font-size:10px;padding:6px 9px}}
 
 /* community: ein Weg wird mit jeder Tour genauer */
 .grow{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative}
@@ -251,6 +296,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
       GipfelPfad
     </a>
     <nav class="nav-links" aria-label="Hauptnavigation">
+      <a href="#kostenlos">Kostenlos</a>
       <a href="#idee">Die Idee</a>
       <a href="#community">Community</a>
       <a href="#projekt">Über uns</a>
@@ -266,23 +312,74 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
   <div class="hero-bg" aria-hidden="true"></div>
   <div class="hero-top">
     <span>Wander-App für den Alpenraum</span>
-    <span>In Entwicklung · Start geplant 2027</span>
+    <span>Kostenlos · ohne Abo · ohne Werbung</span>
   </div>
   <div class="hero-inner">
-    <div class="eyebrow">Studentisches Gründungsprojekt</div>
+    <div class="eyebrow">Ein Hobbyprojekt von zwei Studenten</div>
     <h1><span>Vom Gipfelwunsch</span><span class="alt">zur fertigen Tour.</span></h1>
-    <p class="hero-sub">GipfelPfad ist eine Wander-App für den Alpenraum, die gerade entsteht: Touren aus OpenStreetMap, <b>Hüttenplanung kostenlos</b> und eine <b>Community, die die App mit jeder Tour besser macht</b>. Bevor wir starten, wollen wir von dir wissen: Würdest du wechseln?</p>
+    <p class="hero-sub">GipfelPfad ist eine Wander-App für den Alpenraum. Alles, wofür andere Apps ein Abo wollen, ist hier <b>kostenlos dabei</b>: Hüttenplanung, Offline-Karten, Topo- und Satellitenkarten. Dazu eine <b>Community, die die App mit jeder Tour besser macht</b>. Würdest du wechseln?</p>
   </div>
   <div class="hero-foot">
     <a class="btn btn-light" href="#umfrage">Zur 2-Minuten-Umfrage
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
-    <a class="btn btn-outline" href="#idee">Erst die Idee ansehen</a>
+    <a class="btn btn-outline" href="#kostenlos">Was ist kostenlos?</a>
     <p class="hero-note">Anonym · keine Anmeldung · kein Newsletter</p>
   </div>
   <figure class="hero-thumb">
     <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&amp;fit=crop&amp;w=700&amp;q=80" alt="Pfad durch Nadelwald" width="420" height="525">
     <figcaption>Etappe 01 · Waldweg</figcaption>
   </figure>
+</section>
+
+<!-- KOSTENLOS -->
+<section id="kostenlos" class="section">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Kostenlos. Wirklich.</span>
+      <h2>Was anderswo ein Abo kostet, <em>ist hier einfach dabei.</em></h2>
+      <p>Bei vielen Wander-Apps sind gerade die Funktionen kostenpflichtig, die man am Berg wirklich braucht. Bei GipfelPfad nicht.</p>
+    </div>
+    <div class="free">
+      <div class="zero reveal">
+        <svg class="zero-topo" viewBox="0 0 400 480" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M-20 120 C80 80 160 150 260 110 S380 60 430 90"/>
+          <path d="M-20 170 C90 130 170 200 270 160 S390 110 430 140"/>
+          <path d="M-20 220 C100 180 180 250 280 210 S400 160 430 190"/>
+          <path d="M120 70 C170 40 240 50 280 30 S350 20 360 45 S300 90 240 90 S150 105 120 70Z"/>
+          <path d="M170 62 C200 48 240 52 265 42 S305 40 305 52 S270 70 235 70 S185 76 170 62Z"/>
+        </svg>
+        <svg class="zero-ridge" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 120 L0 86 L52 58 L84 72 L138 22 L170 44 L206 8 L246 50 L282 34 L330 70 L366 52 L400 66 L400 120Z"/>
+        </svg>
+        <span class="zero-label">Preis bis zum Gipfel</span>
+        <span class="zero-num">0 €</span>
+        <ul>
+          <li>kein Abo</li>
+          <li>keine Werbung</li>
+          <li>kein Datenverkauf</li>
+        </ul>
+      </div>
+      <ul class="sign" aria-label="Kostenlos bei GipfelPfad">
+        <li class="plate reveal">
+          <span class="plate-txt"><b>Mehrtagestouren mit Hütten</b><small>bei vielen Apps nur im Abo</small></span>
+          <span class="plate-tip">kostenlos</span>
+        </li>
+        <li class="plate reveal d1">
+          <span class="plate-txt"><b>Offline-Karten fürs Tal ohne Netz</b><small>bei vielen Apps kostenpflichtig</small></span>
+          <span class="plate-tip">kostenlos</span>
+        </li>
+        <li class="plate reveal d2">
+          <span class="plate-txt"><b>Topo- und Satellitenkarten</b><small>bei vielen Apps oft nur im Abo</small></span>
+          <span class="plate-tip">kostenlos</span>
+        </li>
+        <li class="plate reveal d3">
+          <span class="plate-txt"><b>Ohne Werbung</b><small>bei vielen Apps oft mit Werbung</small></span>
+          <span class="plate-tip">immer</span>
+        </li>
+      </ul>
+    </div>
+    <p class="grow-note reveal">„Bei vielen Apps“: je nach App und Tarif unterschiedlich, Stand Oktober 2026.</p>
+  </div>
 </section>
 
 <!-- IDEE -->
@@ -296,18 +393,18 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
     <div class="ideas">
       <article class="idea reveal">
         <span class="no">01</span>
-        <h3>Hüttenplanung, kostenlos.</h3>
-        <p>Mehrtagestour in Etappen aufteilen, Hütten am Weg finden: schon in der kostenlosen Version. Bei vielen Apps steckt das im Abo.</p>
+        <h3>Alles an einem Ort.</h3>
+        <p>Route, Höhenprofil, Gehzeit, Wetter am Gipfel und Hütten am Weg. Statt fünf Apps und Websites nur noch eine.</p>
       </article>
       <article class="idea reveal">
         <span class="no">02</span>
         <h3>Filter, die Wandernde brauchen.</h3>
-        <p>Hütte am Weg, See zum Baden, Rundweg, keine ausgesetzten Stellen. Dazu Wetter am Gipfel, Gehzeit und Höhenprofil.</p>
+        <p>Hütte am Weg, See zum Baden, Rundweg, keine ausgesetzten Stellen. Finde genau die Tour, die zu dir passt.</p>
       </article>
       <article class="idea reveal">
         <span class="no">03</span>
-        <h3>Fair statt Feed.</h3>
-        <p>Keine Werbung, kein Datenverkauf. Routen aus OpenStreetMap, Touren deiner Freunde als Linien auf der Karte statt in einem endlosen Feed.</p>
+        <h3>Teile deine Touren.</h3>
+        <p>Keine Werbung, kein Datenverkauf. Routen aus OpenStreetMap, Schaue die Touren deiner Freunde auf der Karte an.</p>
       </article>
     </div>
 
@@ -317,7 +414,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
         <span>Karte · Satellit · Topo</span>
       </div>
       <div class="layer-stack">
-        <figure class="layer reveal"><img src="img/app-layer-karte.png" alt="Prototyp: Kartenansicht" width="294" height="559" loading="lazy"><figcaption>Karte · OSM</figcaption></figure>
+        <figure class="layer reveal"><img src="img/app-layer-karte.png" alt="Prototyp: Kartenansicht" width="292" height="559" loading="lazy"><figcaption>Karte · OSM</figcaption></figure>
         <figure class="layer reveal"><img src="img/app-layer-sat.png" alt="Prototyp: Satellitenansicht" width="292" height="558" loading="lazy"><figcaption>Satellit</figcaption></figure>
         <figure class="layer reveal"><img src="img/app-layer-topo.png" alt="Prototyp: Topografische Ansicht" width="292" height="559" loading="lazy"><figcaption>Topo</figcaption></figure>
       </div>
@@ -331,7 +428,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
     <div class="sec-head reveal">
       <span class="kicker">Wächst mit der Community</span>
       <h2>Jede Tour macht die App <em>ein Stück besser.</em></h2>
-      <p>Am Anfang kennt GipfelPfad nur, was in OpenStreetMap steht. Mit jeder gegangenen Tour, jeder Bewertung und jedem Hinweis lernt die App dazu: wie schwer ein Weg wirklich ist, wie er gerade aussieht und wo es sich lohnt.</p>
+      <p>Am Anfang kennt GipfelPfad nur, was in OpenStreetMap steht. Mit jeder gegangenen Tour, jeder Bewertung und jedem Hinweis lernt die App dazu, wie schwer ein Weg wirklich ist, wie er gerade aussieht und wo es sich lohnt.</p>
     </div>
     <ol class="grow" aria-label="Beispiel: Wie ein Weg mit der Community genauer wird">
       <li class="grow-card reveal">
@@ -376,10 +473,10 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
       <div class="survey-intro">
         <span class="kicker">Die Umfrage</span>
         <h2 id="umfrage-title">Würdest du <em>wechseln?</em></h2>
-        <p>Ob GipfelPfad eine Chance hat, entscheidest du, nicht unser Businessplan. Nutzt du komoot oder eine andere App? Dann sag uns ehrlich, ob du umsteigen würdest und was dich davon abhält.</p>
+        <p>Ob GipfelPfad eine Chance hat, entscheidest du. Nutzt du komoot oder eine andere App? Dann sag uns ehrlich, ob du umsteigen würdest und was dich davon abhält.</p>
         <ul class="facts">
           <li>ca. 2 Minuten</li>
-          <li>max. 10 Fragen</li>
+          <li>max. 8 Fragen</li>
           <li>anonym</li>
         </ul>
       </div>
@@ -414,11 +511,11 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
       <p>Wir sind Johannes Frisch und Jannik Klug und studieren Wirtschaftsinformatik. Den Prototyp gibt es schon als Web-App und Android-Testversion. Ob daraus eine echte App wird, hängt davon ab, ob Wandernde sie wirklich wollen. Genau das prüfen wir mit dieser Umfrage.</p>
       <p>Die App ist noch nicht öffentlich und bislang noch in der Entwicklung. Und soll im besten Fall keine Bezahlschranken und keine Werbung beinhalten.</p>
     </div>
-    <ol class="timeline reveal" aria-label="Zeitplan">
+    <ol class="timeline reveal" aria-label="Wo wir gerade stehen">
       <li><b>Prototyp</b><span>Web-App und Android-Testversion</span></li>
-      <li class="now"><b>Umfrage</b><span>Herbst 2026, du bist hier</span></li>
-      <li><b>Beta und Nutzertest</b><span>Februar bis März 2027 (geplant)</span></li>
-      <li><b>Start im Alpenraum</b><span>April 2027 (geplant)</span></li>
+      <li class="now"><b>Umfrage</b><span>du bist hier</span></li>
+      <li><b>Auswerten</b><span>was Wandernde sich wirklich wünschen</span></li>
+      <li><b>Weiterbauen</b><span>gemeinsam mit der Community</span></li>
     </ol>
   </div>
 </section>
@@ -427,10 +524,9 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
 
 <footer>
   <div class="wrap foot">
-    <span>© 2026 GipfelPfad · Studentisches Projekt</span>
+    <span>© 2026 GipfelPfad · nicht-kommerzielles Hobbyprojekt</span>
     <nav aria-label="Rechtliches">
-      <a href="rechtliches.html#impressum">Impressum</a>
-      <a href="rechtliches.html#datenschutz">Datenschutz</a>
+      <a href="rechtliches.html">Datenschutz</a>
     </nav>
   </div>
 </footer>
