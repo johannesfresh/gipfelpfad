@@ -81,8 +81,9 @@ p{text-wrap:pretty}
 .hero-inner{max-width:var(--maxw);margin:0 auto;width:100%}
 .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:24px;opacity:.94}
 .eyebrow::before{content:"";width:34px;height:1px;background:currentColor;flex:none}
-.hero h1{font-size:clamp(50px,10vw,148px);font-weight:600;letter-spacing:-.05em;line-height:.88;text-shadow:0 2px 44px rgba(13,49,32,.4)}
+.hero h1{font-size:clamp(48px,9vw,132px);font-weight:600;letter-spacing:-.025em;line-height:1;text-shadow:0 2px 44px rgba(13,49,32,.4)}
 .hero h1 span{display:block}
+.hero h1 span+span{margin-top:.06em}
 .hero h1 .alt{color:#cfe9d8;font-weight:500}
 .hero-sub{max-width:540px;font-size:clamp(15px,1.6vw,19px);line-height:1.55;margin-top:28px;color:rgba(255,255,255,.93)}
 .hero-sub b{font-weight:600;color:#fff}
@@ -317,7 +318,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
   <div class="hero-inner">
     <div class="eyebrow">Ein Hobbyprojekt von zwei Studenten</div>
     <h1><span>Vom Gipfelwunsch</span><span class="alt">zur fertigen Tour.</span></h1>
-    <p class="hero-sub">GipfelPfad ist eine Wander-App für den Alpenraum. Alles, wofür andere Apps ein Abo wollen, ist hier <b>kostenlos dabei</b>: Hüttenplanung, Offline-Karten, Topo- und Satellitenkarten. Dazu eine <b>Community, die die App mit jeder Tour besser macht</b>. Würdest du wechseln?</p>
+    <p class="hero-sub">GipfelPfad ist eine Wander-App für den Alpenraum. Alles, wofür andere Apps ein Abo wollen, ist hier <b>kostenlos dabei</b>: Hüttenplanung, Topo- und Satellitenkarten. Dazu eine <b>Community, die die App mit jeder Tour besser macht</b>. Würdest du wechseln?</p>
   </div>
   <div class="hero-foot">
     <a class="btn btn-light" href="#umfrage">Zur 2-Minuten-Umfrage
@@ -365,7 +366,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
           <span class="plate-tip">kostenlos</span>
         </li>
         <li class="plate reveal d1">
-          <span class="plate-txt"><b>Offline-Karten fürs Tal ohne Netz</b><small>bei vielen Apps kostenpflichtig</small></span>
+          <span class="plate-txt"><b>Track aufzeichen & exportieren</b><small>bei vielen Apps nicht möglich</small></span>
           <span class="plate-tip">kostenlos</span>
         </li>
         <li class="plate reveal d2">
