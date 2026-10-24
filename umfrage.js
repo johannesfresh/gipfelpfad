@@ -29,20 +29,6 @@
         ['andere', 'Eine andere App'], ['keine', 'Ich plane gar nicht']] },
     { field: 'komoot_usage', type: 'single', showIf: usesKomoot, title: 'Wie nutzt du komoot?',
       options: [['free', 'Kostenlos'], ['regions', 'Mit gekauften Regionen / Weltpaket'], ['premium', 'Mit Premium-Abo']] },
-    { field: 'switch_likelihood', type: 'scale',
-      title: (a) => usesKomoot(a)
-        ? 'Wie wahrscheinlich ist es, dass du von komoot zu GipfelPfad wechselst?'
-        : 'Wie wahrscheinlich ist es, dass du GipfelPfad für deine Touren nutzt?',
-      hint: 'Stell dir vor, GipfelPfad startet im Frühjahr 2027 mit allem, was du auf dieser Seite gesehen hast.',
-      options: [[5, 'Sehr wahrscheinlich'], [4, 'Eher wahrscheinlich'], [3, 'Unentschieden'],
-        [2, 'Eher unwahrscheinlich'], [1, 'Sehr unwahrscheinlich']] },
-    { field: 'reasons', type: 'multi', max: 3, exclusive: 'nichts', title: 'Was spricht für dich am meisten für GipfelPfad?',
-      hint: 'Bis zu drei.',
-      options: [['huetten', 'Hüttenplanung kostenlos'], ['community', 'Die App wird mit jeder Tour der Community besser'],
-        ['schwierigkeit', 'Ehrliche Schwierigkeitsangaben'],
-        ['preis', 'Premium für 40 € im Jahr'], ['offen', 'Keine Werbung, kein Datenverkauf'],
-        ['filter', 'Filter wie „Hütte am Weg“ oder „keine ausgesetzten Stellen“'], ['freunde', 'Touren der Freunde auf der Karte'],
-        ['alpen', 'Fokus auf den Alpenraum'], ['nichts', 'Eigentlich nichts']] },
     { field: 'barriers', type: 'multi', exclusive: 'nichts',
       title: (a) => usesKomoot(a) ? 'Was würde dich vom Wechsel abhalten?' : 'Was würde dich davon abhalten, GipfelPfad zu nutzen?',
       hint: 'Mehrfachauswahl möglich.',
@@ -50,6 +36,13 @@
         ['zufrieden', 'Ich bin mit meiner jetzigen Lösung zufrieden'], ['bezahlt', 'Ich habe dort schon bezahlt (Regionen, Abo)'],
         ['vertrauen', 'Ich weiß nicht, ob ich einer neuen App vertrauen kann'], ['aufwand', 'Keine Lust, eine neue App zu lernen'],
         ['nichts', 'Nichts davon']] },
+    { field: 'reasons', type: 'multi', max: 3, exclusive: 'nichts', title: 'Was spricht für dich am meisten für GipfelPfad?',
+      hint: 'Bis zu drei.',
+      options: [['huetten', 'Hüttenplanung kostenlos'], ['community', 'Die App wird mit jeder Tour der Community besser'],
+        ['schwierigkeit', 'Ehrliche Schwierigkeitsangaben'],
+        ['preis', 'Premium für 40 € im Jahr'], ['offen', 'Keine Werbung, kein Datenverkauf'],
+        ['filter', 'Filter wie „Hütte am Weg“ oder „keine ausgesetzten Stellen“'], ['freunde', 'Touren der Freunde auf der Karte'],
+        ['alpen', 'Fokus auf den Alpenraum'], ['nichts', 'Eigentlich nichts']] },
     { field: 'premium_intent', type: 'single', title: 'Premium soll 40 € im Jahr kosten (oder 5,99 € im Monat). Würdest du es abschließen?',
       hint: 'Premium: Offline-Karten für beliebig viele Gebiete, Hüttenkontakte direkt aus der App, unbegrenzt gespeicherte Touren, Aufzeichnung bei gesperrtem Display, Gruppen-Touren.',
       options: [['ja', 'Ja, würde ich abschließen'], ['test', 'Ich würde nach der Testphase entscheiden'],
@@ -57,6 +50,13 @@
     { field: 'max_price', type: 'single', title: 'Was wäre dir so ein Premium-Abo im Jahr höchstens wert?',
       options: [['0', 'Nichts'], ['1-20', 'Bis 20 €'], ['20-30', '20 bis 30 €'], ['30-40', '30 bis 40 €'],
         ['40-60', '40 bis 60 €'], ['60+', 'Mehr als 60 €']] },
+    { field: 'switch_likelihood', type: 'scale',
+      title: (a) => usesKomoot(a)
+        ? 'Wie wahrscheinlich ist es, dass du von komoot zu GipfelPfad wechselst?'
+        : 'Wie wahrscheinlich ist es, dass du GipfelPfad für deine Touren nutzt?',
+      hint: 'Stell dir vor, GipfelPfad startet im Frühjahr 2027 mit allem, was du auf dieser Seite gesehen hast.',
+      options: [[5, 'Sehr wahrscheinlich'], [4, 'Eher wahrscheinlich'], [3, 'Unentschieden'],
+        [2, 'Eher unwahrscheinlich'], [1, 'Sehr unwahrscheinlich']] },
     { field: 'final', type: 'final', title: 'Fast geschafft. Noch drei freiwillige Angaben.' },
   ];
 
