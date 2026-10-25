@@ -14,6 +14,8 @@
   const MAX_TEXT = 500;
   const AUTO_ADVANCE_MS = 260;
   const SRC_PATTERN = /^[A-Za-z0-9_-]{1,40}$/;
+  const CLIMB = { start: 800, summit: 2600 };   // Höhenmeter für die Aufstiegs-Anzeige
+  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   const usesKomoot = (a) => (a.apps || []).includes('komoot');
 
@@ -50,7 +52,8 @@
       hint: 'Stell dir vor, GipfelPfad gibt es mit allem, was du auf dieser Seite gesehen hast, komplett kostenlos.',
       options: [[5, 'Sehr wahrscheinlich'], [4, 'Eher wahrscheinlich'], [3, 'Unentschieden'],
         [2, 'Eher unwahrscheinlich'], [1, 'Sehr unwahrscheinlich']] },
-    { field: 'final', type: 'final', title: 'Fast geschafft. Noch drei freiwillige Angaben.' },
+    { field: 'final', type: 'final', title: 'Fast oben! Trag dich ins Gipfelbuch ein.',
+      hint: 'Alles auf dieser letzten Etappe ist freiwillig.' },
   ];
 
   const AGE = [['', 'Keine Angabe'], ['u25', 'Unter 25'], ['25-39', '25 bis 39'], ['40-59', '40 bis 59'], ['60+', '60 oder älter']];
@@ -80,6 +83,37 @@
     });
     (children || []).forEach((c) => c && node.append(c));
     return node;
+  }
+
+  const fmt = (n) => n.toLocaleString('de-DE');
+
+  function svgEl(tag, attrs) {
+    const node = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+    return node;
+  }
+
+  /* ---------- Aufstieg: Höhenprofil statt Fortschrittsbalken ---------- */
+  function renderClimb(index, total, isSummit) {
+    const box = $('[data-climb]');
+    const path = $('[data-climb-path]');
+    if (!box || !path) return;
+    const t = isSummit ? 1 : index / total;
+    const len = path.getTotalLength();
+    const at = (f) => path.getPointAtLength(len * f);
+    const here = at(t);
+    path.style.strokeDashoffset = String(100 - t * 100);
+    $('[data-climb-hiker]').style.transform = `translate(${here.x}px, ${here.y}px)`;
+    $('[data-climb-points]').replaceChildren(...Array.from({ length: total }, (_, i) => {
+      const p = at(i / total);
+      const done = isSummit || i < index;
+      return svgEl('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '3.5', class: 'climb-pt' + (done ? ' done' : '') });
+    }));
+    const alt = Math.round((CLIMB.start + t * (CLIMB.summit - CLIMB.start)) / 10) * 10;
+    box.classList.toggle('is-summit', isSummit);
+    $('[data-progress-text]').textContent = isSummit
+      ? `Gipfel erreicht · ${fmt(alt)} m`
+      : `Etappe ${index + 1} von ${total} · ${fmt(alt)} m`;
   }
 
   /* ---------- Antworten (immer neue Objekte, keine Mutation) ---------- */
@@ -124,17 +158,25 @@
         opts.map(([v, t]) => el('option', { value: v, text: t, selected: (answers[name] || '') === v }))),
     ]);
     const text = el('textarea', {
-      name: 'pain_point', rows: '3', maxlength: String(MAX_TEXT),
-      placeholder: 'Was nervt dich an deiner jetzigen Tourenplanung? (freiwillig)',
+      id: 'gp-book', name: 'pain_point', class: 'book-text', rows: '4', maxlength: String(MAX_TEXT),
+      placeholder: 'Schreib einfach drauflos …',
       oninput: (e) => setAnswer('pain_point', e.target.value.trim() || null),
     });
     text.value = answers.pain_point || '';
+    const book = el('div', { class: 'book' }, [
+      el('div', { class: 'book-head' }, [
+        el('span', { class: 'book-title', text: 'Gipfelbuch' }),
+        el('span', { class: 'book-date', text: `${new Date().toLocaleDateString('de-DE')} · ${fmt(CLIMB.summit)} m` }),
+      ]),
+      el('label', { class: 'book-label', for: 'gp-book', text: 'Was nervt dich an deiner jetzigen Tourenplanung? Oder was wünschst du dir?' }),
+      text,
+    ]);
     const trap = el('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', class: 'hp', 'aria-hidden': 'true' });
     const consent = el('p', { class: 'consent' }, [
       'Anonym: Wir speichern keine Namen, E-Mail-Adressen oder IP-Adressen in der Umfrage. Mit dem Absenden stimmst du zu, dass wir deine Antworten für unser Projekt auswerten. ',
       el('a', { href: 'rechtliches.html#datenschutz', text: 'Datenschutz' }), '.',
     ]);
-    return el('div', { class: 'final-fields' }, [text, el('div', { class: 'field-row' }, [
+    return el('div', { class: 'final-fields' }, [book, el('div', { class: 'field-row' }, [
       select('age_group', AGE, 'Alter'), select('country', COUNTRY, 'Land')]), trap, consent]);
   }
 
@@ -147,8 +189,7 @@
       : el('div', { class: 'opts opts-' + step.type }, step.options.map(([v, t]) => optionTile(step, v, t)));
     const fieldset = el('fieldset', {}, [legend, step.hint ? el('p', { class: 'hint', text: textOf(step.hint) }) : null, body]);
     $('[data-step]').replaceChildren(fieldset, navRow(step, pos === 0));
-    $('[data-progress-text]').textContent = `Frage ${pos + 1} von ${steps.length}`;
-    $('[data-progress-bar]').style.width = pct(pos + 1, steps.length) + '%';
+    renderClimb(pos, steps.length, false);
     if (userNavigated) legend.focus({ preventScroll: true });
   }
 
@@ -256,10 +297,10 @@
   function showThanks() {
     showError('');
     $('[data-survey-form]').hidden = true;
-    $('[data-progress]').hidden = true;
+    renderClimb(0, visibleSteps().length, true);
     $('[data-thanks]').replaceChildren(
-      el('p', { class: 'thanks-kicker', text: 'Gespeichert' }),
-      el('h3', { text: 'Danke, das hilft uns wirklich.' }),
+      el('p', { class: 'thanks-kicker', text: `${fmt(CLIMB.summit)} m · Gipfelkreuz` }),
+      el('h3', { text: 'Gipfel erreicht! Danke dir.' }),
       el('p', { text: 'Je mehr Wandernde mitmachen, desto belastbarer wird das Ergebnis. Schick die Umfrage gern an deine Wandergruppe weiter.' }),
       el('div', { class: 'thanks-actions' }, [
         el('button', { type: 'button', class: 'btn btn-solid', 'data-share': true, text: 'Umfrage teilen', onclick: share }),
@@ -271,7 +312,6 @@
   function showForm() {
     $('[data-thanks]').hidden = true;
     $('[data-survey-form]').hidden = false;
-    $('[data-progress]').hidden = false;
     renderStep();
   }
 
