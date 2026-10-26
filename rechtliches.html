@@ -9,58 +9,143 @@
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=bricolage-grotesque:600,700|inter:400,500,600|jetbrains-mono:500&display=swap">
 <style>
-:root{--green:#1f6f43;--green-ink:#0d3120;--ink:#1d201c;--muted:#535a51;--paper:#f2f3ee;--line:rgba(29,32,28,.14);--todo:#fff1d6;--todo-line:#d98a3d}
+:root{--green:#1f6f43;--green-deep:#14492d;--green-ink:#0d3120;--ink:#1d201c;--muted:#535a51;--paper:#f2f3ee;--cream:#f8f7f1;--line:rgba(29,32,28,.14);--todo:#fff1d6;--todo-line:#d98a3d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased}
 .wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px}
 a{color:var(--green)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px}
 .back{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-decoration:none}
+.lang-switch{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:2px;background:var(--cream)}
+.lang-switch button{appearance:none;background:none;border:0;cursor:pointer;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;padding:6px 10px;border-radius:99px}
+.lang-switch button[aria-pressed="true"]{background:var(--green-deep);color:#fff}
 h1{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:clamp(34px,6vw,52px);letter-spacing:-.04em;line-height:1;color:var(--green-ink);margin:28px 0 8px}
-h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:26px;letter-spacing:-.03em;color:var(--green-ink);margin:56px 0 14px;padding-top:24px;border-top:1px solid var(--line);scroll-margin-top:20px}
 h3{font-size:16px;font-weight:600;margin:24px 0 6px}
 p,li{font-size:15.5px;color:var(--ink)}
 p+p{margin-top:10px}
 .lead{color:var(--muted)}
-.todo{background:var(--todo);border:1px dashed var(--todo-line);border-radius:6px;padding:1px 6px;font-weight:500}
 .note{background:var(--todo);border-left:3px solid var(--todo-line);padding:14px 16px;border-radius:6px;margin-top:20px;font-size:14px}
+.stand{margin-top:28px;color:var(--muted);font-size:13.5px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="./">← Zurück zur Startseite</a>
-  <h1 id="datenschutz">Datenschutz</h1>
-  <p class="lead">GipfelPfad ist ein privates, nicht-kommerzielles Hobbyprojekt. Diese Seite stellt die Idee vor und enthält eine anonyme Umfrage. Es gibt nichts zu kaufen, kein Abo und keine Firma dahinter.</p>
+  <div class="top">
+    <a class="back" href="./" data-back>← Zurück zur Startseite</a>
+    <div class="lang-switch" role="group" aria-label="Sprache / Language">
+      <button type="button" data-set-lang="de" lang="de" aria-pressed="true">DE</button>
+      <button type="button" data-set-lang="en" lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
 
-  <div class="note"><b>Vor der Veröffentlichung ausfüllen und diesen Kasten löschen:</b> Alle gelb markierten Stellen sind Platzhalter. Dieser Text ist eine Vorlage und keine Rechtsberatung.</div>
+  <!-- ================= DEUTSCH ================= -->
+  <div data-lang-block="de" lang="de">
+    <h1 id="datenschutz">Datenschutz</h1>
+    <p class="lead">GipfelPfad ist ein privates, nicht-kommerzielles Hobbyprojekt. Diese Seite stellt die Idee vor und enthält eine anonyme Umfrage. Es gibt nichts zu kaufen, kein Abo und keine Firma dahinter.</p>
 
-  <h3>1. Verantwortlich</h3>
-  <p>Verantwortlich im Sinne der DSGVO ist Johannes Frisch.<br>
-     E-Mail: joh5659s@hs-coburg.de</span></p>
-  <p>Bei Fragen zum Datenschutz oder zur Umfrage schreib uns einfach eine E-Mail.</p>
+    <div class="note"><b>Vor der Veröffentlichung ausfüllen und diesen Kasten löschen:</b> Alle gelb markierten Stellen sind Platzhalter. Dieser Text ist eine Vorlage und keine Rechtsberatung.</div>
 
-  <h3>2. Die Umfrage</h3>
-  <p>Die Umfrage ist anonym. Wir fragen nicht nach Namen, E-Mail-Adresse oder anderen Angaben, mit denen wir dich identifizieren könnten. Gespeichert werden nur deine Antworten (zum Beispiel Wanderhäufigkeit, genutzte Apps, Wechselbereitschaft), die freiwilligen Angaben zu Altersgruppe und Land, ein optionaler Freitext, der Zeitpunkt der Teilnahme und gegebenenfalls ein Kampagnen-Kürzel aus dem Link (zum Beispiel „instagram“).</p>
-  <p>Bitte schreib in das Freitextfeld keine Angaben, mit denen man dich erkennen kann.</p>
-  <p>Zweck ist herauszufinden, ob Wandernde GipfelPfad nutzen würden und was sie sich wünschen. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die du durch das Absenden gibst. Weil die Antworten keiner Person zugeordnet werden können, können wir einzelne Antworten nachträglich nicht finden oder löschen. Wir löschen alle Antworten spätestens 31.12.2030.</p>
-  <p>Die Antworten speichern wir bei Supabase (Supabase Inc., USA) in einer Datenbank in Frankfurt (eu-central-1)]. Beim Absenden wird deine IP-Adresse technisch an Supabase übertragen, um die Anfrage zu beantworten. In der Umfrage-Tabelle speichern wir sie nicht.</p>
-  <p>In deinem Browser merken wir uns im lokalen Speicher (localStorage) nur, dass du teilgenommen hast, damit dir die Umfrage nicht erneut angezeigt wird. Diese Angabe verlässt dein Gerät nicht.</p>
+    <h3>1. Verantwortlich</h3>
+    <p>Verantwortlich im Sinne der DSGVO ist Johannes Frisch.<br>
+       E-Mail: joh5659s@hs-coburg.de</p>
+    <p>Bei Fragen zum Datenschutz oder zur Umfrage schreib uns einfach eine E-Mail.</p>
 
-  <h3>3. Hosting</h3>
-  <p>Die Seite wird über GitHub Pages (GitHub, Inc., USA) bereitgestellt. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern und vor Angriffen zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO).</p>
+    <h3>2. Die Umfrage</h3>
+    <p>Die Umfrage ist anonym. Wir fragen nicht nach Namen, E-Mail-Adresse oder anderen Angaben, mit denen wir dich identifizieren könnten. Gespeichert werden nur deine Antworten (zum Beispiel Wanderhäufigkeit, genutzte Apps, Wechselbereitschaft), die freiwilligen Angaben zu Altersgruppe und Land, ein optionaler Freitext, der Zeitpunkt der Teilnahme und gegebenenfalls ein Kampagnen-Kürzel aus dem Link (zum Beispiel „instagram“).</p>
+    <p>Bitte schreib in das Freitextfeld keine Angaben, mit denen man dich erkennen kann.</p>
+    <p>Zweck ist herauszufinden, ob Wandernde GipfelPfad nutzen würden und was sie sich wünschen. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die du durch das Absenden gibst. Weil die Antworten keiner Person zugeordnet werden können, können wir einzelne Antworten nachträglich nicht finden oder löschen. Wir löschen alle Antworten spätestens 31.12.2030.</p>
+    <p>Die Antworten speichern wir bei Supabase (Supabase Inc., USA) in einer Datenbank in Frankfurt (eu-central-1). Beim Absenden wird deine IP-Adresse technisch an Supabase übertragen, um die Anfrage zu beantworten. In der Umfrage-Tabelle speichern wir sie nicht.</p>
+    <p>In deinem Browser merken wir uns im lokalen Speicher (localStorage) nur, ob du teilgenommen hast und welche Sprache du gewählt hast. Diese Angaben verlassen dein Gerät nicht.</p>
 
-  <h3>4. Schriftarten</h3>
-  <p>Die Schriftarten laden wir von Bunny Fonts (BunnyWay d.o.o., Slowenien, EU). Dabei wird deine IP-Adresse an Bunny übertragen. Laut Anbieter werden dabei keine personenbezogenen Daten gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.</p>
+    <h3>3. E-Mail-Updates (freiwillig)</h3>
+    <p>Wenn du am Ende der Umfrage den Haken bei „Halt mich auf dem Laufenden“ setzt und deine E-Mail-Adresse einträgst, speichern wir diese Adresse, die gewählte Sprache und das Datum der Anmeldung (ohne Uhrzeit). Die Adresse liegt in einer eigenen Tabelle und ist nicht mit deinen Umfrage-Antworten verknüpft. Deine Antworten bleiben anonym.</p>
+    <p>Zweck ist, dich per E-Mail über Neuigkeiten zu GipfelPfad zu informieren, zum Beispiel über den Start der App. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit widerrufen: Eine kurze E-Mail an die oben genannte Adresse genügt, dann löschen wir deine Adresse. Wir geben sie nicht weiter. Gespeichert wird sie bei Supabase in Frankfurt (eu-central-1), längstens bis 31.12.2030.</p>
 
-  <h3>5. Bilder</h3>
-  <p>Zwei Landschaftsfotos laden wir von Unsplash (Unsplash Inc., Kanada/USA). Dabei wird deine IP-Adresse an Unsplash übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Fotos: Unsplash-Lizenz.</p>
+    <h3>4. Hosting</h3>
+    <p>Die Seite wird über GitHub Pages (GitHub, Inc., USA) bereitgestellt. Beim Aufruf verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern und vor Angriffen zu schützen. Rechtsgrundlage ist unser berechtigtes Interesse an einer sicheren Bereitstellung (Art. 6 Abs. 1 lit. f DSGVO).</p>
 
-  <h3>6. Keine Cookies, kein Tracking</h3>
-  <p>Wir setzen keine Cookies und nutzen keine Analyse- oder Werbedienste.</p>
+    <h3>5. Schriftarten</h3>
+    <p>Die Schriftarten laden wir von Bunny Fonts (BunnyWay d.o.o., Slowenien, EU). Dabei wird deine IP-Adresse an Bunny übertragen. Laut Anbieter werden dabei keine personenbezogenen Daten gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.</p>
 
-  <h3>7. Deine Rechte</h3>
-  <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Bei anonymen Antworten können wir Auskunft und Löschung allerdings nur leisten, wenn wir die Antwort dir zuordnen können.</p>
+    <h3>6. Bilder</h3>
+    <p>Zwei Landschaftsfotos laden wir von Unsplash (Unsplash Inc., Kanada/USA). Dabei wird deine IP-Adresse an Unsplash übertragen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Fotos: Unsplash-Lizenz.</p>
 
-  <p style="margin-top:28px;color:var(--muted);font-size:13.5px">Stand: 25.10.2026</p>
+    <h3>7. Keine Cookies, kein Tracking</h3>
+    <p>Wir setzen keine Cookies und nutzen keine Analyse- oder Werbedienste.</p>
+
+    <h3>8. Deine Rechte</h3>
+    <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Bei anonymen Antworten können wir Auskunft und Löschung allerdings nur leisten, wenn wir die Antwort dir zuordnen können.</p>
+
+    <p class="stand">Stand: 26.10.2026</p>
+  </div>
+
+  <!-- ================= ENGLISH ================= -->
+  <div data-lang-block="en" lang="en" hidden>
+    <h1>Privacy</h1>
+    <p class="lead">GipfelPfad is a private, non-commercial side project. This page presents the idea and contains an anonymous survey. There is nothing to buy, no subscription and no company behind it.</p>
+
+    <h3>1. Controller</h3>
+    <p>The controller within the meaning of the GDPR is Johannes Frisch.<br>
+       Email: joh5659s@hs-coburg.de</p>
+    <p>If you have questions about privacy or the survey, just send us an email.</p>
+
+    <h3>2. The survey</h3>
+    <p>The survey is anonymous. We don’t ask for your name, email address or any other details that could identify you. We only store your answers (for example how often you hike, which apps you use, whether you would switch), the optional details on age group and country, an optional free text, the time of participation and, if present, a campaign code from the link (for example “instagram”).</p>
+    <p>Please don’t write anything in the free-text field that could identify you.</p>
+    <p>The purpose is to find out whether hikers would use GipfelPfad and what they wish for. The legal basis is your consent (Art. 6(1)(a) GDPR), which you give by submitting. Because answers cannot be linked to a person, we cannot find or delete individual answers afterwards. We will delete all answers by 31 December 2030 at the latest.</p>
+    <p>We store the answers with Supabase (Supabase Inc., USA) in a database in Frankfurt (eu-central-1). When you submit, your IP address is technically transmitted to Supabase to process the request. We do not store it in the survey table.</p>
+    <p>In your browser’s local storage (localStorage) we only remember whether you have taken part and which language you chose. This information does not leave your device.</p>
+
+    <h3>3. Email updates (optional)</h3>
+    <p>If you tick “Keep me posted” at the end of the survey and enter your email address, we store this address, the language you chose and the date of sign-up (without the time). The address is kept in a separate table and is not linked to your survey answers. Your answers remain anonymous.</p>
+    <p>The purpose is to inform you by email about news on GipfelPfad, for example the launch of the app. The legal basis is your consent (Art. 6(1)(a) GDPR). You can withdraw it at any time: a short email to the address above is enough, and we will delete your address. We do not share it with anyone. It is stored with Supabase in Frankfurt (eu-central-1), until 31 December 2030 at the latest.</p>
+
+    <h3>4. Hosting</h3>
+    <p>This site is provided via GitHub Pages (GitHub, Inc., USA). When you visit it, GitHub processes technically necessary data such as your IP address, the time and the page requested in order to deliver the site and protect it against attacks. The legal basis is our legitimate interest in providing the site securely (Art. 6(1)(f) GDPR).</p>
+
+    <h3>5. Fonts</h3>
+    <p>We load the fonts from Bunny Fonts (BunnyWay d.o.o., Slovenia, EU). In doing so, your IP address is transmitted to Bunny. According to the provider, no personal data is stored. The legal basis is Art. 6(1)(f) GDPR.</p>
+
+    <h3>6. Images</h3>
+    <p>We load two landscape photos from Unsplash (Unsplash Inc., Canada/USA). In doing so, your IP address is transmitted to Unsplash. The legal basis is Art. 6(1)(f) GDPR. Photos: Unsplash License.</p>
+
+    <h3>7. No cookies, no tracking</h3>
+    <p>We do not use cookies and do not use any analytics or advertising services.</p>
+
+    <h3>8. Your rights</h3>
+    <p>You have the right to access, rectification, erasure, restriction of processing, data portability and objection, as well as the right to lodge a complaint with a data protection supervisory authority. For anonymous answers, however, we can only provide access or erasure if we are able to link the answer to you.</p>
+
+    <p class="stand">Last updated: 26 October 2026</p>
+  </div>
 </div>
+
+<script>
+/* Sprache wie auf der Startseite (localStorage „gp-lang“, ?lang=, sonst Browsersprache) */
+(function(){
+  var KEY='gp-lang';
+  var TITLE={de:'GipfelPfad: Datenschutz',en:'GipfelPfad: Privacy'};
+  var BACK={de:'← Zurück zur Startseite',en:'← Back to the homepage'};
+  var blocks=document.querySelectorAll('[data-lang-block]');
+  var buttons=document.querySelectorAll('[data-set-lang]');
+  var back=document.querySelector('[data-back]');
+  function apply(lang){
+    blocks.forEach(function(b){b.hidden=b.getAttribute('data-lang-block')!==lang;});
+    buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-set-lang')===lang));});
+    document.documentElement.lang=lang;
+    document.title=TITLE[lang];
+    back.textContent=BACK[lang];
+    try{localStorage.setItem(KEY,lang);}catch(e){}
+  }
+  function initial(){
+    var q=new URLSearchParams(location.search).get('lang');
+    if(q==='de'||q==='en')return q;
+    try{var s=localStorage.getItem(KEY);if(s==='de'||s==='en')return s;}catch(e){}
+    var nav=(navigator.languages&&navigator.languages[0])||navigator.language||'de';
+    return /^de\b/i.test(nav)?'de':'en';
+  }
+  buttons.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-set-lang'));});});
+  apply(initial());
+})();
+</script>
 </body>
 </html>

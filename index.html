@@ -60,6 +60,14 @@ p{text-wrap:pretty}
 .nav-links a{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--muted)}
 .nav-links a:hover{color:var(--green-ink)}
 .nav-links .btn{padding:10px 18px;font-size:11px;color:#fff}
+/* Sprachumschalter DE / EN */
+.lang-switch{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;padding:2px;background:var(--cream)}
+.lang-switch button{appearance:none;background:none;border:0;cursor:pointer;color:var(--muted);
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;padding:6px 10px;border-radius:99px;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.lang-switch button:hover{color:var(--green-ink)}
+.lang-switch button[aria-pressed="true"]{background:var(--green-deep);color:#fff}
+.lang-switch button:active{transform:scale(.94)}
 @media (max-width:720px){.nav-links a:not(.btn){display:none}}
 
 /* grain (wie Promo-Seite) */
@@ -268,6 +276,20 @@ fieldset{border:0;min-width:0}
 .field span{display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .consent{font-size:13px;color:var(--muted);line-height:1.55}
 .consent a{color:var(--green)}
+/* Freiwillige E-Mail für Updates */
+.contact{border:1.5px dashed rgba(31,111,67,.35);border-radius:14px;padding:14px 16px;background:rgba(31,111,67,.04);display:flex;flex-direction:column;gap:12px}
+.contact-opt{display:flex;align-items:flex-start;gap:12px;cursor:pointer}
+.contact-opt input{appearance:none;-webkit-appearance:none;flex:none;width:20px;height:20px;margin-top:2px;border:1.5px solid #a9b2aa;border-radius:6px;background:#fff;display:grid;place-items:center;cursor:pointer;transition:background .2s,border-color .2s}
+.contact-opt input:checked{background:var(--green);border-color:var(--green)}
+.contact-opt input:checked::after{content:"";width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-1px) rotate(-45deg)}
+.contact-opt input:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.contact-opt b{display:block;font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--green-ink)}
+.contact-opt small{display:block;font-size:13px;color:var(--muted);line-height:1.5;margin-top:2px}
+.contact-email{width:100%;font:inherit;font-size:15px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.contact-email:focus{border-color:var(--green);outline:none}
+.contact-email[hidden]{display:none}
+.thanks-note{margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(31,111,67,.08);color:var(--green-ink)!important;font-size:14.5px}
+.thanks-note.is-warn{background:rgba(180,68,47,.08);color:var(--t4)!important}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 .survey-error{margin-top:14px;color:var(--t4);font-size:14px;font-weight:500}
 .thanks h3{font-size:clamp(26px,3vw,36px);color:var(--green-ink);margin:10px 0 12px}
@@ -330,6 +352,10 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
       <a href="#idee">Die Idee</a>
       <a href="#community">Community</a>
       <a href="#projekt">Über uns</a>
+      <div class="lang-switch" role="group" aria-label="Sprache">
+        <button type="button" data-set-lang="de" lang="de" aria-pressed="true">DE</button>
+        <button type="button" data-set-lang="en" lang="en" aria-pressed="false">EN</button>
+      </div>
       <a class="btn btn-solid" href="#umfrage">Zur Umfrage</a>
     </nav>
   </div>
@@ -353,7 +379,7 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
     <a class="btn btn-light" href="#umfrage">Zur 2-Minuten-Umfrage
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
     <a class="btn btn-outline" href="#kostenlos">Was ist kostenlos?</a>
-    <p class="hero-note">Anonym · keine Anmeldung · kein Newsletter</p>
+    <p class="hero-note">Anonym · keine Anmeldung · E-Mail nur freiwillig</p>
   </div>
   <figure class="hero-thumb">
     <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&amp;fit=crop&amp;w=700&amp;q=80" alt="Pfad durch Nadelwald" width="420" height="525">
@@ -586,8 +612,126 @@ footer{background:var(--green-ink);color:rgba(238,243,238,.7);padding:48px 0 40p
   </div>
 </footer>
 
-<script src="config.js"></script>
-<script src="umfrage.js" defer></script>
+<script>
+/* ---- DE/EN: Deutsch steht im HTML, Englisch kommt aus diesem Wörterbuch (Schlüssel = deutscher Text) ---- */
+(function(){
+  var TITLE={de:'GipfelPfad: Würdest du wechseln?',en:'GipfelPfad: Would you switch?'};
+  var EN={
+    'GipfelPfad ist eine kostenlose Wander-App für den Alpenraum: Hüttenplanung, Offline-Karten, Topo- und Satellitenkarten ohne Abo und ohne Werbung. Hilf uns mit einer anonymen 2-Minuten-Umfrage.':'GipfelPfad is a free hiking app for the Alps: hut planning, offline maps, topo and satellite maps with no subscription and no ads. Help us with an anonymous 2-minute survey.',
+    'GipfelPfad, zum Seitenanfang':'GipfelPfad, back to top','Hauptnavigation':'Main navigation','Sprache':'Language','Rechtliches':'Legal',
+    'Kostenlos':'Free','Die Idee':'The idea','Über uns':'About us','Zur Umfrage':'Take the survey',
+    /* Startbild */
+    'Wander-App für den Alpenraum':'Hiking app for the Alps',
+    'Kostenlos · ohne Abo · ohne Werbung':'Free · no subscription · no ads',
+    'Ein Hobbyprojekt von zwei Studenten':'A side project by two students',
+    'Vom Gipfelwunsch':'From summit dream','zur fertigen Tour.':'to a ready-to-go hike.',
+    'GipfelPfad ist eine Wander-App für den Alpenraum. Alles, wofür andere Apps ein Abo wollen, ist hier':'GipfelPfad is a hiking app for the Alps. Everything other apps want a subscription for is',
+    'kostenlos dabei':'included for free',
+    ': Hüttenplanung, Topo- und Satellitenkarten. Dazu eine':': hut planning, topo and satellite maps. Plus a',
+    'Community, die die App mit jeder Tour besser macht':'community that makes the app better with every hike',
+    '. Würdest du wechseln?':'. Would you switch?',
+    'Zur 2-Minuten-Umfrage':'Take the 2-minute survey','Was ist kostenlos?':'What’s free?',
+    'Anonym · keine Anmeldung · E-Mail nur freiwillig':'Anonymous · no sign-up · email only if you want',
+    'Pfad durch Nadelwald':'Trail through a conifer forest','Etappe 01 · Waldweg':'Stage 01 · Forest path',
+    /* Kostenlos */
+    'Kostenlos. Wirklich.':'Free. Really.',
+    'Was anderswo ein Abo kostet,':'What costs a subscription elsewhere','ist hier einfach dabei.':'is simply included here.',
+    'Bei vielen Wander-Apps sind gerade die Funktionen kostenpflichtig, die man am Berg wirklich braucht. Bei GipfelPfad nicht.':'Many hiking apps charge for exactly the features you really need in the mountains. GipfelPfad doesn’t.',
+    'Preis bis zum Gipfel':'Price to the summit','kein Abo':'no subscription','keine Werbung':'no ads','kein Datenverkauf':'no selling of data',
+    'versprochen!':'promise!','Kostenlos bei GipfelPfad':'Free at GipfelPfad',
+    'Mehrtagestouren mit Hütten':'Multi-day hikes with huts','bei vielen Apps nur im Abo':'subscription-only in many apps',
+    'kostenlos':'free','immer':'always',
+    'Track aufzeichen & exportieren':'Record & export tracks','bei vielen Apps nicht möglich':'not possible in many apps',
+    'Topo- und Satellitenkarten':'Topo and satellite maps','bei vielen Apps oft nur im Abo':'often subscription-only in many apps',
+    'Ohne Werbung':'No ads','bei vielen Apps oft mit Werbung':'often with ads in many apps',
+    '„Bei vielen Apps“: je nach App und Tarif unterschiedlich, Stand Oktober 2026.':'“In many apps”: varies by app and plan, as of October 2026.',
+    /* Idee */
+    'Planen, einschätzen, aufzeichnen.':'Plan, assess, record.','An einem Ort.':'All in one place.',
+    'Wer heute eine Bergtour plant, sucht Route, Schwierigkeit, Hütten, Wetter und Höhenprofil aus vielen Quellen zusammen. Und vieles davon liegt hinter Bezahlschranken.':'Planning a mountain hike today means piecing together route, difficulty, huts, weather and elevation profile from lots of sources. And much of it sits behind paywalls.',
+    'Alles an einem Ort.':'Everything in one place.',
+    'Route, Höhenprofil, Gehzeit, Wetter am Gipfel und Hütten am Weg. Statt fünf Apps und Websites nur noch eine.':'Route, elevation profile, walking time, summit weather and huts along the way. One app instead of five apps and websites.',
+    'Filter, die Wandernde brauchen.':'Filters hikers actually need.',
+    'Hütte am Weg, See zum Baden, Rundweg, keine ausgesetzten Stellen. Finde genau die Tour, die zu dir passt.':'Hut along the way, a lake for a swim, loop trail, no exposed sections. Find exactly the hike that suits you.',
+    'Teile deine Touren.':'Share your hikes.',
+    'Keine Werbung, kein Datenverkauf. Routen aus OpenStreetMap, Schaue die Touren deiner Freunde auf der Karte an.':'No ads, no selling of data. Routes from OpenStreetMap, and your friends’ hikes right on the map.',
+    'Der Prototyp läuft schon.':'The prototype already works.','Karte · Satellit · Topo':'Map · Satellite · Topo',
+    'Karte · OSM':'Map · OSM','Satellit':'Satellite',
+    'Prototyp: Kartenansicht':'Prototype: map view','Prototyp: Satellitenansicht':'Prototype: satellite view','Prototyp: Topografische Ansicht':'Prototype: topographic view',
+    /* Community */
+    'Wächst mit der Community':'Grows with the community','Jede Tour macht die App':'Every hike makes the app','ein Stück besser.':'a little better.',
+    'Am Anfang kennt GipfelPfad nur, was in OpenStreetMap steht. Mit jeder gegangenen Tour, jeder Bewertung und jedem Hinweis lernt die App dazu, wie schwer ein Weg wirklich ist, wie er gerade aussieht und wo es sich lohnt.':'At first, GipfelPfad only knows what’s in OpenStreetMap. With every hike, every review and every tip, the app learns how hard a trail really is, what it looks like right now and where it’s worth going.',
+    'Beispiel: Wie ein Weg mit der Community genauer wird':'Example: how a trail gets more accurate with the community',
+    'Nur OpenStreetMap':'Only OpenStreetMap','Schwierigkeit':'Difficulty','unbekannt':'unknown','Wegzustand':'Trail condition',
+    'keine Angaben':'no info','Tipps':'Tips','keine':'none','Einige Wandernde':'Some hikers','Erste Erfahrungen':'First experiences',
+    'eher anspruchsvoll':'fairly demanding','vorläufig':'provisional','Geröll nach dem Sattel':'Scree after the saddle',
+    'Quelle kurz vor der Hütte':'Spring just before the hut','Viele Wandernde':'Many hikers','Ein Weg, den man kennt':'A trail people know',
+    'anspruchsvoll':'demanding','bestätigt':'confirmed','aktuell, letzte Meldung diese Woche':'up to date, last report this week',
+    'Fotos, Badestelle, beste Startzeit':'Photos, swimming spot, best start time',
+    'Beispiel zur Veranschaulichung. Deshalb ist uns wichtig, dass möglichst viele Wandernde mitmachen, auch in dieser Umfrage.':'Illustrative example. That’s why we want as many hikers as possible to join in, including in this survey.',
+    /* Umfrage */
+    'Die Umfrage':'The survey','Würdest du':'Would you','wechseln?':'switch?',
+    'Ob GipfelPfad eine Chance hat, entscheidest du. Nutzt du komoot oder eine andere App? Dann sag uns ehrlich, ob du umsteigen würdest und was dich davon abhält.':'You decide whether GipfelPfad has a chance. Do you use komoot or another app? Then tell us honestly whether you’d switch and what’s holding you back.',
+    'ca. 2 Minuten':'approx. 2 minutes','max. 8 Etappen bis zum Gipfel':'max. 8 stages to the summit','anonym':'anonymous',
+    'Tal':'Valley','Gipfel':'Summit','Zwischenstand':'Results so far',
+    /* Über uns */
+    'Wer dahintersteckt':'Who’s behind it','Zwei Studenten,':'Two students,','ein Prototyp.':'one prototype.',
+    'Wir sind Johannes Frisch und Jannik Klug und studieren Wirtschaftsinformatik. Den Prototyp gibt es schon als Web-App und Android-Testversion. Ob daraus eine echte App wird, hängt davon ab, ob Wandernde sie wirklich wollen. Genau das prüfen wir mit dieser Umfrage.':'We’re Johannes Frisch and Jannik Klug and we study business informatics. The prototype already exists as a web app and an Android test version. Whether it becomes a real app depends on whether hikers actually want it. That’s exactly what this survey is for.',
+    'Die App ist noch nicht öffentlich und bislang noch in der Entwicklung. Und soll keine Bezahlschranken und keine Werbung beinhalten.':'The app isn’t public yet and is still in development. Ideally, it will have no paywalls and no ads.',
+    'Wo wir gerade stehen':'Where we are right now','Prototyp':'Prototype','Web-App und Android-Testversion':'Web app and Android test version',
+    'Umfrage':'Survey','du bist hier':'you are here','Auswerten':'Analyse','was Wandernde sich wirklich wünschen':'what hikers really want',
+    'Weiterbauen':'Keep building','gemeinsam mit der Community':'together with the community',
+    '© 2026 GipfelPfad · nicht-kommerzielles Hobbyprojekt':'© 2026 GipfelPfad · non-commercial side project','Datenschutz':'Privacy'
+  };
+  var STORE_KEY='gp-lang';
+  var SKIP='[data-step],[data-thanks],[data-results],[data-progress-text],[data-survey-error],.lang-switch,script,style,noscript';
+  function norm(s){return s.replace(/\s+/g,' ').trim();}
+  function has(k){return Object.prototype.hasOwnProperty.call(EN,k);}
+
+  /* deutsche Originale einmalig merken (Textknoten + alt/aria-label + Meta-Beschreibung) */
+  var texts=[],attrs=[];
+  var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+    return n.parentElement&&n.parentElement.closest(SKIP)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;
+  }});
+  while(walker.nextNode()){
+    var node=walker.currentNode,key=norm(node.nodeValue);
+    if(!key||!has(key))continue;
+    texts.push({node:node,de:node.nodeValue,en:node.nodeValue.match(/^\s*/)[0]+EN[key]+node.nodeValue.match(/\s*$/)[0]});
+  }
+  ['alt','aria-label'].forEach(function(a){
+    document.querySelectorAll('['+a+']').forEach(function(el){
+      var key=norm(el.getAttribute(a));
+      if(has(key))attrs.push({el:el,attr:a,de:el.getAttribute(a),en:EN[key]});
+    });
+  });
+  var desc=document.querySelector('meta[name="description"]');
+  if(desc&&has(norm(desc.content)))attrs.push({el:desc,attr:'content',de:desc.content,en:EN[norm(desc.content)]});
+
+  var buttons=document.querySelectorAll('[data-set-lang]');
+  function apply(lang,notify){
+    var isEn=lang==='en';
+    texts.forEach(function(t){t.node.nodeValue=isEn?t.en:t.de;});
+    attrs.forEach(function(a){a.el.setAttribute(a.attr,isEn?a.en:a.de);});
+    document.documentElement.lang=lang;
+    document.title=TITLE[lang];
+    buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-set-lang')===lang));});
+    try{localStorage.setItem(STORE_KEY,lang);}catch(e){}
+    if(notify)document.dispatchEvent(new CustomEvent('gp:lang',{detail:lang}));
+  }
+  function initialLang(){
+    var q=new URLSearchParams(location.search).get('lang');
+    if(q==='de'||q==='en')return q;
+    try{var s=localStorage.getItem(STORE_KEY);if(s==='de'||s==='en')return s;}catch(e){}
+    var nav=(navigator.languages&&navigator.languages[0])||navigator.language||'de';
+    return /^de\b/i.test(nav)?'de':'en';
+  }
+  buttons.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-set-lang'),true);});});
+  apply(initialLang(),false);
+})();
+</script>
+<!-- ?v= bei jeder Änderung an den Skripten hochzählen, damit Browser keine alte Version aus dem Cache nutzen -->
+<script src="config.js?v=5"></script>
+<script src="umfrage-en.js?v=5"></script>
+<script src="umfrage.js?v=5" defer></script>
 <script>
 (function(){
   var nav=document.getElementById('nav');

@@ -16,6 +16,14 @@
   const SRC_PATTERN = /^[A-Za-z0-9_-]{1,40}$/;
   const CLIMB = { start: 800, summit: 2600 };   // Höhenmeter für die Aufstiegs-Anzeige
   const SVG_NS = 'http://www.w3.org/2000/svg';
+  const EN = window.GP_SURVEY_EN || {};
+
+  // Sprache kommt von der Seite (<html lang>); Texte sind deutsch, englisch über umfrage-en.js
+  const isEn = () => document.documentElement.lang === 'en';
+  function T(key, vars) {
+    const s = (isEn() && EN[key]) || key;
+    return vars ? s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k])) : s;
+  }
 
   const usesKomoot = (a) => (a.apps || []).includes('komoot');
 
@@ -60,14 +68,19 @@
   const COUNTRY = [['', 'Keine Angabe'], ['de', 'Deutschland'], ['at', 'Österreich'], ['ch', 'Schweiz'], ['it', 'Italien'], ['andere', 'Anderes Land']];
   const REASON_LABEL = Object.fromEntries(STEPS.find((s) => s.field === 'reasons').options);
 
+  const MAX_EMAIL = 254;
+  const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
   let answers = {};
+  let contact = { wants: false, email: '' };   // nie Teil der Umfrage-Antworten
+  let thanksNote = null;                        // 'mail-ok' | 'mail-fail' | null
   let pos = 0;
   let startedAt = 0;
   let userNavigated = false;
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const visibleSteps = () => STEPS.filter((s) => !s.showIf || s.showIf(answers));
-  const textOf = (v) => (typeof v === 'function' ? v(answers) : v);
+  const textOf = (v) => T(typeof v === 'function' ? v(answers) : v);
   const hasConfig = () => !!(CFG.SUPABASE_URL && CFG.SUPABASE_KEY);
   const headers = (extra) => ({ apikey: CFG.SUPABASE_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_KEY, ...extra });
   const pct = (n, of) => (of > 0 ? Math.round((100 * n) / of) : 0);
@@ -85,7 +98,8 @@
     return node;
   }
 
-  const fmt = (n) => n.toLocaleString('de-DE');
+  const locale = () => (isEn() ? 'en-GB' : 'de-DE');
+  const fmt = (n) => n.toLocaleString(locale());
 
   function svgEl(tag, attrs) {
     const node = document.createElementNS(SVG_NS, tag);
@@ -112,8 +126,8 @@
     const alt = Math.round((CLIMB.start + t * (CLIMB.summit - CLIMB.start)) / 10) * 10;
     box.classList.toggle('is-summit', isSummit);
     $('[data-progress-text]').textContent = isSummit
-      ? `Gipfel erreicht · ${fmt(alt)} m`
-      : `Etappe ${index + 1} von ${total} · ${fmt(alt)} m`;
+      ? T('Gipfel erreicht · {alt} m', { alt: fmt(alt) })
+      : T('Etappe {i} von {n} · {alt} m', { i: index + 1, n: total, alt: fmt(alt) });
   }
 
   /* ---------- Antworten (immer neue Objekte, keine Mutation) ---------- */
@@ -139,45 +153,88 @@
       type: isMulti ? 'checkbox' : 'radio', name: step.field, value: String(value), checked: chosen,
       onchange: () => onPick(step, value),
     });
-    return el('label', { class: 'opt' + (chosen ? ' is-on' : '') }, [input, el('span', { text: label })]);
+    return el('label', { class: 'opt' + (chosen ? ' is-on' : '') }, [input, el('span', { text: T(label) })]);
   }
 
   function navRow(step, isFirst) {
     const canNext = step.type === 'multi' ? (answers[step.field] || []).length > 0 : answers[step.field] != null;
-    const back = isFirst ? el('span') : el('button', { type: 'button', class: 'btn-ghost', text: '← Zurück', onclick: goBack });
+    const back = isFirst ? el('span') : el('button', { type: 'button', class: 'btn-ghost', text: T('← Zurück'), onclick: goBack });
     const next = step.type === 'final'
-      ? el('button', { type: 'submit', class: 'btn btn-solid', text: 'Antworten absenden' })
-      : el('button', { type: 'button', class: 'btn btn-solid', text: 'Weiter →', disabled: !canNext, onclick: goNext });
+      ? el('button', { type: 'submit', class: 'btn btn-solid', text: T('Antworten absenden') })
+      : el('button', { type: 'button', class: 'btn btn-solid', text: T('Weiter →'), disabled: !canNext, onclick: goNext });
     return el('div', { class: 'step-nav' }, [back, next]);
   }
 
   function finalFields() {
     const select = (name, opts, label) => el('label', { class: 'field' }, [
-      el('span', { text: label }),
+      el('span', { text: T(label) }),
       el('select', { name, onchange: (e) => setAnswer(name, e.target.value || null) },
-        opts.map(([v, t]) => el('option', { value: v, text: t, selected: (answers[name] || '') === v }))),
+        opts.map(([v, t]) => el('option', { value: v, text: T(t), selected: (answers[name] || '') === v }))),
     ]);
     const text = el('textarea', {
       id: 'gp-book', name: 'pain_point', class: 'book-text', rows: '4', maxlength: String(MAX_TEXT),
-      placeholder: 'Schreib einfach drauflos …',
+      placeholder: T('Schreib einfach drauflos …'),
       oninput: (e) => setAnswer('pain_point', e.target.value.trim() || null),
     });
     text.value = answers.pain_point || '';
     const book = el('div', { class: 'book' }, [
       el('div', { class: 'book-head' }, [
-        el('span', { class: 'book-title', text: 'Gipfelbuch' }),
-        el('span', { class: 'book-date', text: `${new Date().toLocaleDateString('de-DE')} · ${fmt(CLIMB.summit)} m` }),
+        el('span', { class: 'book-title', text: T('Gipfelbuch') }),
+        el('span', { class: 'book-date', text: `${new Date().toLocaleDateString(locale())} · ${fmt(CLIMB.summit)} m` }),
       ]),
-      el('label', { class: 'book-label', for: 'gp-book', text: 'Was nervt dich an deiner jetzigen Tourenplanung? Oder was wünschst du dir?' }),
+      el('label', { class: 'book-label', for: 'gp-book', text: T('Was nervt dich an deiner jetzigen Tourenplanung? Oder was wünschst du dir?') }),
       text,
     ]);
     const trap = el('input', { type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', class: 'hp', 'aria-hidden': 'true' });
     const consent = el('p', { class: 'consent' }, [
-      'Anonym: Wir speichern keine Namen, E-Mail-Adressen oder IP-Adressen in der Umfrage. Mit dem Absenden stimmst du zu, dass wir deine Antworten für unser Projekt auswerten. ',
-      el('a', { href: 'rechtliches.html#datenschutz', text: 'Datenschutz' }), '.',
+      T('Deine Antworten sind anonym: Wir speichern dazu keine Namen, E-Mail-Adressen oder IP-Adressen. Mit dem Absenden stimmst du zu, dass wir deine Antworten für unser Projekt auswerten. '),
+      el('a', { href: 'rechtliches.html#datenschutz', text: T('Datenschutz') }), '.',
     ]);
     return el('div', { class: 'final-fields' }, [book, el('div', { class: 'field-row' }, [
-      select('age_group', AGE, 'Alter'), select('country', COUNTRY, 'Land')]), trap, consent]);
+      select('age_group', AGE, 'Alter'), select('country', COUNTRY, 'Land')]), contactBox(), trap, consent]);
+  }
+
+  /* ---------- Freiwillige E-Mail für Updates (getrennt von den Antworten gespeichert) ---------- */
+  function contactBox() {
+    const email = el('input', {
+      type: 'email', name: 'email', class: 'contact-email', autocomplete: 'email', inputmode: 'email',
+      maxlength: String(MAX_EMAIL), placeholder: T('deine@email.de'), hidden: !contact.wants,
+      'aria-label': T('E-Mail-Adresse'),
+      oninput: (e) => { contact = { ...contact, email: e.target.value.trim() }; },
+    });
+    email.value = contact.email;
+    const check = el('input', {
+      type: 'checkbox', name: 'wants_updates', checked: contact.wants,
+      onchange: (e) => {
+        contact = { ...contact, wants: e.target.checked };
+        email.hidden = !e.target.checked;
+        if (e.target.checked) email.focus();
+      },
+    });
+    return el('div', { class: 'contact' }, [
+      el('label', { class: 'contact-opt' }, [check, el('span', {}, [
+        el('b', { text: T('Halt mich auf dem Laufenden') }),
+        el('small', { text: T('Freiwillig: Wir schreiben dir, wenn es Neuigkeiten zu GipfelPfad gibt. Deine E-Mail speichern wir getrennt von deinen Antworten, abmelden kannst du dich jederzeit.') }),
+      ])]),
+      email,
+    ]);
+  }
+
+  const isValidEmail = (s) => s.length <= MAX_EMAIL && EMAIL_PATTERN.test(s);
+
+  async function postNewsletter(email) {
+    try {
+      // Bewusst ein einfacher Insert: „Duplikate ignorieren“ (on_conflict) bräuchte Leserechte,
+      // die Tabelle ist aber per RLS absichtlich nicht lesbar.
+      const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/newsletter_signup`, {
+        method: 'POST',
+        headers: headers({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+        body: JSON.stringify({ email: email.toLowerCase(), lang: isEn() ? 'en' : 'de' }),
+      });
+      return res.ok || res.status === 409;   // 409 = Adresse ist schon in der Liste → auch gut
+    } catch (_) {
+      return false;
+    }
   }
 
   function renderStep() {
@@ -251,24 +308,29 @@
     e.preventDefault();
     if (visibleSteps()[pos].type !== 'final') return goNext();
     const missing = missingStep();
-    if (missing >= 0) { pos = missing; renderStep(); return showError('Diese Frage fehlt noch.'); }
+    if (missing >= 0) { pos = missing; renderStep(); return showError(T('Diese Frage fehlt noch.')); }
+    const wantsMail = contact.wants && contact.email !== '';
+    if (contact.wants && !isValidEmail(contact.email)) {
+      return showError(T('Bitte gib eine gültige E-Mail-Adresse ein oder nimm den Haken raus.'));
+    }
     const form = e.currentTarget;
     const trap = form.elements.website;
     const isBot = (trap && trap.value !== '') || Date.now() - startedAt < MIN_FILL_MS;
     const button = form.querySelector('[type=submit]');
     button.disabled = true;
-    button.textContent = 'Sende …';
+    button.textContent = T('Sende …');
     try {
       if (!isBot) await postAnswers(buildPayload());
+      if (!isBot && wantsMail) thanksNote = (await postNewsletter(contact.email)) ? 'mail-ok' : 'mail-fail';
       try { localStorage.setItem(DONE_KEY, '1'); } catch (_) { /* privater Modus: egal */ }
       showThanks();
       loadStats();
     } catch (err) {
       button.disabled = false;
-      button.textContent = 'Antworten absenden';
-      showError(err.message === 'rate'
+      button.textContent = T('Antworten absenden');
+      showError(T(err.message === 'rate'
         ? 'Gerade kommen sehr viele Antworten an. Bitte versuch es in ein paar Minuten nochmal.'
-        : 'Das Senden hat nicht geklappt. Deine Antworten sind noch da, bitte versuch es nochmal.');
+        : 'Das Senden hat nicht geklappt. Deine Antworten sind noch da, bitte versuch es nochmal.'));
     }
   }
 
@@ -281,17 +343,24 @@
   /* ---------- Danke-Ansicht ---------- */
   async function share() {
     const url = location.origin + location.pathname + '#umfrage';
-    const data = { title: 'GipfelPfad', text: 'Würdest du von deiner Wander-App zu GipfelPfad wechseln? 2-Minuten-Umfrage:', url };
+    const data = { title: 'GipfelPfad', text: T('Würdest du von deiner Wander-App zu GipfelPfad wechseln? 2-Minuten-Umfrage:'), url };
     try {
       if (navigator.share) await navigator.share(data);
-      else { await navigator.clipboard.writeText(url); $('[data-share]').textContent = 'Link kopiert ✓'; }
+      else { await navigator.clipboard.writeText(url); $('[data-share]').textContent = T('Link kopiert ✓'); }
     } catch (_) { /* Teilen abgebrochen */ }
   }
 
   function restart() {
     try { localStorage.removeItem(DONE_KEY); } catch (_) { /* egal */ }
     answers = {}; pos = 0; startedAt = 0; userNavigated = true;
+    contact = { wants: false, email: '' }; thanksNote = null;
     showForm();
+  }
+
+  function thanksNoteEl() {
+    if (thanksNote === 'mail-ok') return el('p', { class: 'thanks-note', text: T('Du stehst auf unserer Liste. Wir melden uns per E-Mail, sobald es Neuigkeiten gibt.') });
+    if (thanksNote === 'mail-fail') return el('p', { class: 'thanks-note is-warn', text: T('Deine Antworten sind gespeichert, deine E-Mail-Adresse leider nicht. Schreib uns gern direkt, die Adresse steht im Datenschutz.') });
+    return null;
   }
 
   function showThanks() {
@@ -299,12 +368,13 @@
     $('[data-survey-form]').hidden = true;
     renderClimb(0, visibleSteps().length, true);
     $('[data-thanks]').replaceChildren(
-      el('p', { class: 'thanks-kicker', text: `${fmt(CLIMB.summit)} m · Gipfelkreuz` }),
-      el('h3', { text: 'Gipfel erreicht! Danke dir.' }),
-      el('p', { text: 'Je mehr Wandernde mitmachen, desto belastbarer wird das Ergebnis. Schick die Umfrage gern an deine Wandergruppe weiter.' }),
+      el('p', { class: 'thanks-kicker', text: T('{alt} m · Gipfelkreuz', { alt: fmt(CLIMB.summit) }) }),
+      el('h3', { text: T('Gipfel erreicht! Danke dir.') }),
+      el('p', { text: T('Je mehr Wandernde mitmachen, desto belastbarer wird das Ergebnis. Schick die Umfrage gern an deine Wandergruppe weiter.') }),
+      thanksNoteEl(),
       el('div', { class: 'thanks-actions' }, [
-        el('button', { type: 'button', class: 'btn btn-solid', 'data-share': true, text: 'Umfrage teilen', onclick: share }),
-        el('button', { type: 'button', class: 'btn-ghost', text: 'Weitere Antwort abgeben', onclick: restart }),
+        el('button', { type: 'button', class: 'btn btn-solid', 'data-share': true, text: T('Umfrage teilen'), onclick: share }),
+        el('button', { type: 'button', class: 'btn-ghost', text: T('Weitere Antwort abgeben'), onclick: restart }),
       ]));
     $('[data-thanks]').hidden = false;
   }
@@ -320,28 +390,33 @@
     return el('div', { class: 'stat' }, [el('b', { text: value }), el('span', { text: label }), sub ? el('small', { text: sub }) : null]);
   }
 
+  let lastStats = null;
+
   function renderStats(s) {
     const box = $('[data-results]');
     if (!box) return;
+    lastStats = s;
     const n = Number(s.total) || 0;
     if (n < MIN_SAMPLE) {
-      box.replaceChildren(el('p', { class: 'results-empty',
-        text: `Bisher ${n} ${n === 1 ? 'Antwort' : 'Antworten'}. Den Zwischenstand zeigen wir ab ${MIN_SAMPLE} Antworten, vorher wäre er Zufall.` }));
+      const key = n === 1
+        ? 'Bisher {n} Antwort. Den Zwischenstand zeigen wir ab {min} Antworten, vorher wäre er Zufall.'
+        : 'Bisher {n} Antworten. Den Zwischenstand zeigen wir ab {min} Antworten, vorher wäre er Zufall.';
+      box.replaceChildren(el('p', { class: 'results-empty', text: T(key, { n, min: MIN_SAMPLE }) }));
       return;
     }
     const k = Number(s.komoot) || 0;
     const komootStat = k >= MIN_SAMPLE
-      ? statBlock(pct(s.komoot_likely, k) + ' %', 'der komoot-Nutzenden würden (eher) wechseln', `davon „sehr wahrscheinlich“: ${pct(s.komoot_sure, k)} %`)
-      : statBlock(String(k), 'komoot-Nutzende bisher', `Prozentwert ab ${MIN_SAMPLE}`);
-    const reasons = (s.top_reasons || []).map((r) => el('li', {}, [el('span', { text: REASON_LABEL[r.key] || r.key }), el('b', { text: pct(r.n, n) + ' %' })]));
+      ? statBlock(pct(s.komoot_likely, k) + ' %', T('der komoot-Nutzenden würden (eher) wechseln'), T('davon „sehr wahrscheinlich“: {p} %', { p: pct(s.komoot_sure, k) }))
+      : statBlock(String(k), T('komoot-Nutzende bisher'), T('Prozentwert ab {min}', { min: MIN_SAMPLE }));
+    const reasons = (s.top_reasons || []).map((r) => el('li', {}, [el('span', { text: T(REASON_LABEL[r.key] || r.key) }), el('b', { text: pct(r.n, n) + ' %' })]));
     box.replaceChildren(
       el('div', { class: 'stats' }, [
         komootStat,
-        statBlock(pct(s.all_likely, n) + ' %', 'aller Befragten würden GipfelPfad (eher) nutzen', `davon „sehr wahrscheinlich“: ${pct(s.all_sure, n)} %`),
-        statBlock(String(n), 'Antworten bisher', `davon ${k} mit komoot`),
+        statBlock(pct(s.all_likely, n) + ' %', T('aller Befragten würden GipfelPfad (eher) nutzen'), T('davon „sehr wahrscheinlich“: {p} %', { p: pct(s.all_sure, n) })),
+        statBlock(String(n), T('Antworten bisher'), T('davon {k} mit komoot', { k })),
       ]),
-      reasons.length ? el('div', { class: 'top-reasons' }, [el('p', { text: 'Was am meisten überzeugt' }), el('ol', {}, reasons)]) : null,
-      el('p', { class: 'results-note', text: 'Live aus dieser Umfrage. Nicht repräsentativ: Hier antwortet, wer die Seite findet.' }));
+      reasons.length ? el('div', { class: 'top-reasons' }, [el('p', { text: T('Was am meisten überzeugt') }), el('ol', {}, reasons)]) : null,
+      el('p', { class: 'results-note', text: T('Live aus dieser Umfrage. Nicht repräsentativ: Hier antwortet, wer die Seite findet.') }));
   }
 
   async function loadStats() {
@@ -354,7 +429,7 @@
       renderStats(await res.json());
     } catch (_) {
       const box = $('[data-results]');
-      if (box) box.replaceChildren(el('p', { class: 'results-empty', text: 'Der Zwischenstand ist gerade nicht erreichbar.' }));
+      if (box) box.replaceChildren(el('p', { class: 'results-empty', text: T('Der Zwischenstand ist gerade nicht erreichbar.') }));
     }
   }
 
@@ -366,8 +441,19 @@
     let done = false;
     try { done = localStorage.getItem(DONE_KEY) === '1'; } catch (_) { /* egal */ }
     if (done) showThanks(); else showForm();
-    if (!hasConfig()) showError('Die Umfrage ist noch nicht verbunden (config.js fehlt).');
+    if (!hasConfig()) showError(T('Die Umfrage ist noch nicht verbunden (config.js fehlt).'));
     loadStats();
+    document.addEventListener('gp:lang', onLangChange);
+  }
+
+  // Sprachwechsel: aktuelle Ansicht neu zeichnen, ohne Antworten oder Fokus zu verlieren
+  function onLangChange() {
+    showError('');
+    const keepFocus = userNavigated;
+    userNavigated = false;
+    if ($('[data-thanks]').hidden) renderStep(); else showThanks();
+    userNavigated = keepFocus;
+    if (lastStats) renderStats(lastStats);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
